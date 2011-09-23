@@ -146,7 +146,7 @@ struct edf_hdr_struct{                     /* this structure contains all the re
   long long datarecords_in_file;                          /* number of datarecords in the file */
   long long annotations_in_file;                          /* number of annotations in the file */
   struct edf_param_struct signalparam[EDFLIB_MAXSIGNALS]; /* array of structs which contain the relevant signal parameters */
-       };
+};
 
 
 
