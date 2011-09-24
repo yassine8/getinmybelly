@@ -33,11 +33,12 @@ char* signalName(int signal) {
     if (hdr_p != NULL) {
         return hdr_p->signalparam[signal].label;
     } else {
-        return -1;
+        return "";
     }
 }
 
-int ReadSamples(int signal, int samples, double *buf) {
+int readSamples(int signal, int samples, double *buf) {
+    printf("test");
     if (hdr_p != NULL) {
         return edfread_physical_samples(hdr_p->handle, signal, samples, buf);
     } else {
