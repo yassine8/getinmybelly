@@ -37,10 +37,18 @@ char* signalName(int signal) {
     }
 }
 
+int doubleSize() {
+    return sizeof(double);
+}
+
 int readSamples(int signal, int samples, double *buf) {
-    printf("test");
     if (hdr_p != NULL) {
-        return edfread_physical_samples(hdr_p->handle, signal, samples, buf);
+        int r = edfread_physical_samples(hdr_p->handle, signal, samples, buf);
+        /*int i = 0;
+        for (i = 0; i < r; i++) {
+            printf("Sample %d: %f \n", i, buf[i]);
+        } */
+        return r;
     } else {
         return -1;
     }

@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import org.xvolks.jnative.JNative;
 import org.xvolks.jnative.Type;
 import org.xvolks.jnative.pointers.Pointer;
-import org.xvolks.jnative.pointers.memory.MemoryBlock;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 /**
@@ -19,25 +18,48 @@ public class Reader {
     private static JNative noOfSignals;
     private static JNative readSamples;
     private static JNative signalName;
+    private static JNative doubleSize;
     private static boolean fileOpen = false;
+    private static int sdouble = -1;
+    
+    
+    /**
+     * Returns the size of a native double. Since this will differ from java's size.
+     * @return double size
+     */
+    private static int doubleSize() {
+        try {
+            doubleSize = new JNative("ReadSignals.dll", "doubleSize");
+            doubleSize.setRetVal(Type.INT);
+            doubleSize.invoke();
+            return doubleSize.getRetValAsInt();
+        } catch (Exception ex) {
+            Logger.getLogger(Reader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 8; // The double size on my 64 bit pc. *tom*
+    }
 
     public static double[] readSamples(int signal, int samples) {
         if (fileOpen) {
             try {
-                int sdouble = Double.SIZE;
-                Pointer p = new Pointer(MemoryBlockFactory.createMemoryBlock(samples*sdouble));
+                if (sdouble < 1) {
+                    sdouble = doubleSize();
+                }
+
+                Pointer p = new Pointer(MemoryBlockFactory.createMemoryBlock(samples * sdouble));
                 readSamples = new JNative("ReadSignals.dll", "readSamples");
+                readSamples.setRetVal(Type.INT);
                 readSamples.setParameter(0, signal);
                 readSamples.setParameter(1, samples);
                 readSamples.setParameter(2, p);
                 readSamples.invoke();
-                
+
                 int samplesRead = readSamples.getRetValAsInt();
-                
+
                 if (samplesRead > 0) {
                     double[] smp = new double[samplesRead];
                     for (int i = 0; i < samplesRead; i++) {
-                        smp[i] = p.getAsDouble(i*sdouble);
+                        smp[i] = p.getAsDouble(i * sdouble);
                     }
                     return smp;
                 }
