@@ -29,7 +29,7 @@ public class ReaderTester {
         double[] samples = Reader.readSamples(0, 10);
         if (samples.length > 0) {
             System.out.println(samples.length + " samples read.");
-            for (int i = 0; i > samples.length; i++) {
+            for (int i = 0; i < samples.length; i++) {
                 System.out.println("Sample " + i + ": " + samples[i]);
             }
         }
