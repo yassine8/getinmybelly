@@ -8,31 +8,39 @@
 #include <stdio.h>
 #include "edflib.h"
 
-void openEDFFile(char *path, int samples);
-
 struct edf_hdr_struct hdr;
-
-int main() {
-    //printf("Testing ECG.edf file on C: rootdir. \n");
-    openEDFFile("C:\\ECG.edf", 10);
-    closeEDFFile();
-    return 1;
-}
+struct edf_hdr_struct *hdr_p;
 
 int openEDFFile(char *path) {
+    hdr_p = &hdr;
     return edfopen_file_readonly(path, &hdr, EDFLIB_DO_NOT_READ_ANNOTATIONS);
 }
 
 int closeEDFFile() {
-    return edfclose_file(hdr.handle);
+    int status = edfclose_file(hdr_p->handle);
+    hdr_p = NULL;
+    return status;
 }
 
 int noOfSignals() {
-    return hdr.edfsignals;
+    if (hdr_p != NULL)
+        return hdr_p->edfsignals;
+    else
+        return -1;
 }
 
-double* ReadSamples(int signal, int samples) {
-    double buf[samples];
-    printf("%d Samples read. \n", edfread_physical_samples(hdr.handle, signal, samples, buf));
-    return buf;
+char* signalName(int signal) {
+    if (hdr_p != NULL) {
+        return hdr_p->signalparam[signal].label;
+    } else {
+        return -1;
+    }
+}
+
+int ReadSamples(int signal, int samples, double *buf) {
+    if (hdr_p != NULL) {
+        return edfread_physical_samples(hdr_p->handle, signal, samples, buf);
+    } else {
+        return -1;
+    }
 }
